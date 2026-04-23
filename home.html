@@ -957,6 +957,9 @@
     });
 
     window._saveUserProfile = async (name, role) => {
+      if (!window._currentUser) {
+        throw new Error('Not authenticated');
+      }
       const userRef = doc(db, 'users', window._currentUser.uid);
       const profileData = {
         name,
@@ -965,10 +968,15 @@
         uid: window._currentUser.uid,
         createdAt: serverTimestamp()
       };
-      await setDoc(userRef, profileData, { merge: true });
-      window._userProfile = profileData;
-      document.getElementById('profile-overlay').classList.remove('show');
-      initApp(profileData);
+      try {
+        await setDoc(userRef, profileData, { merge: true });
+        window._userProfile = profileData;
+        document.getElementById('profile-overlay').classList.remove('show');
+        initApp(profileData);
+      } catch (error) {
+        console.error('Failed to save user profile:', error);
+        throw error;
+      }
     };
 
     function initApp(profile) {
@@ -1020,21 +1028,26 @@
 
     // --- Save Profile ---
     async function saveProfile() {
+      const btn = document.getElementById('save-profile-btn');
       const name = document.getElementById('profile-name').value.trim();
       if (!name) return showToast('Please enter your name.');
 
       if (selectedRole === 'teacher') {
         const passcode = document.getElementById('teacher-passcode').value;
-        if (passcode !== 'Academy@teach') return showToast('Incorrect teacher passcode.');
+        if (passcode !== 'Academy@teach') {
+          btn.disabled = false;
+          btn.textContent = 'Save & Continue';
+          return showToast('Incorrect teacher passcode.');
+        }
       }
 
-      const btn = document.getElementById('save-profile-btn');
       btn.disabled = true; btn.textContent = 'Saving...';
       try {
         await window._saveUserProfile(name, selectedRole);
         showToast('Profile saved! Welcome to NoteMate 🎉');
       } catch (e) {
-        showToast('Error saving profile.');
+        console.error('Profile save failed:', e);
+        showToast('Error setting profile.');
         btn.disabled = false; btn.textContent = 'Save & Continue';
       }
     }
