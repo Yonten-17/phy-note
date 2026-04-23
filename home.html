@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NoteMate — Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f6f3;
+      --surface: #ffffff;
+      --border: #e8e5df;
+      --border-light: #f0ede8;
+      --text: #1a1a18;
+      --muted: #8a8780;
+      --accent: #2f2f2c;
+      --accent-warm: #c9622f;
+      --sidebar-bg: #1a1a18;
+      --sidebar-text: #c8c5be;
+      --sidebar-active: rgba(255,255,255,0.08);
+      --sidebar-hover: rgba(255,255,255,0.05);
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+      --shadow-lg: 0 8px 40px rgba(0,0,0,0.14);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ====== SIDEBAR ====== */
+    .sidebar {
+      width: 240px;
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 20px 18px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .logo-icon {
+      width: 30px; height: 30px;
+      background: var(--accent-warm);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+
+    .logo-text {
+      font-family: 'Fraunces', serif;
+      font-size: 18px;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .sidebar-section {
+      padding: 16px 12px 8px;
+    }
+
+    .sidebar-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #555450;
+      font-weight: 500;
+      padding: 0 6px;
+      margin-bottom: 6px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      color: var(--sidebar-text);
+      font-size: 13.5px;
+      text-decoration: none;
+    }
+
+    .sidebar-item:hover { background: var(--sidebar-hover); }
+    .sidebar-item.active { background: var(--sidebar-active); color: #fff; }
+
+    .sidebar-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+    .sidebar-classrooms { flex: 1; overflow-y: auto; padding: 8px 12px; }
+    .sidebar-classrooms::-webkit-scrollbar { width: 4px; }
+    .sidebar-classrooms::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+    .classroom-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      color: var(--sidebar-text);
+      font-size: 13px;
+    }
+
+    .classroom-item:hover { background: var(--sidebar-hover); }
+    .classroom-item.active { background: var(--sidebar-active); color: #fff; }
+
+    .classroom-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .sidebar-bottom {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 12px;
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .user-pill:hover { background: var(--sidebar-hover); }
+
+    .avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--accent-warm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      color: white;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 12.5px; color: #d8d5cf; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 11px; color: #555450; }
+
+    /* ====== MAIN ====== */
+    .main {
+      margin-left: 240px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-title {
+      font-family: 'Fraunces', serif;
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: -0.3px;
+    }
+
+    .topbar-actions { display: flex; gap: 8px; }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: #aaa; color: var(--text); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #111; }
+
+    .btn-warm {
+      background: var(--accent-warm);
+      color: #fff;
+    }
+    .btn-warm:hover { background: #b5561e; }
+
+    /* ====== CONTENT ====== */
+    .content {
+      flex: 1;
+      padding: 32px 28px;
+      max-width: 900px;
+    }
+
+    /* HOME VIEW */
+    .home-view {}
+
+    .welcome-banner {
+      background: var(--accent);
+      border-radius: 14px;
+      padding: 28px 32px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .welcome-banner::after {
+      content: '📝';
+      position: absolute;
+      right: 32px;
+      font-size: 64px;
+      opacity: 0.12;
+    }
+
+    .welcome-banner h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 24px;
+      font-weight: 300;
+      color: #fff;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+    }
+
+    .welcome-banner p { font-size: 13px; color: #8a8780; }
+
+    .section-title {
+      font-family: 'Fraunces', serif;
+      font-size: 18px;
+      font-weight: 400;
+      margin-bottom: 16px;
+      letter-spacing: -0.3px;
+    }
+
+    .classrooms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+
+    .classroom-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+
+    .classroom-card:hover {
+      border-color: #ccc;
+      box-shadow: var(--shadow);
+      transform: translateY(-1px);
+    }
+
+    .classroom-card-color {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      margin-bottom: 14px;
+    }
+
+    .classroom-card h3 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+    .classroom-card p { font-size: 12px; color: var(--muted); }
+
+    .add-classroom-card {
+      border: 1.5px dashed var(--border);
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 110px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .add-classroom-card:hover { border-color: #aaa; color: var(--text); background: var(--surface); }
+
+    /* CLASSROOM VIEW */
+    .classroom-view { display: none; }
+
+    .classroom-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .classroom-header h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    .classroom-header p { font-size: 13px; color: var(--muted); }
+
+    /* NOTES */
+    .notes-list { display: flex; flex-direction: column; gap: 14px; }
+
+    .note-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .note-card:hover { border-color: #ccc; box-shadow: var(--shadow); }
+
+    .note-header {
+      padding: 18px 20px 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .note-author-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      color: #fff;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .note-meta { flex: 1; }
+    .note-author-name { font-size: 13px; font-weight: 500; }
+    .note-timestamp { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+    .note-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-teacher { background: #fef3e2; color: #92400e; }
+    .badge-student { background: #f0f7ff; color: #1e40af; }
+
+    .note-title { font-size: 16px; font-weight: 500; padding: 0 20px 8px; }
+    .note-body { font-size: 14px; color: #444440; padding: 0 20px 16px; line-height: 1.7; white-space: pre-wrap; }
+
+    .note-actions {
+      padding: 10px 20px 14px;
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .note-action-btn {
+      background: none;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12.5px;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .note-action-btn:hover { background: var(--bg); color: var(--text); }
+
+    .note-action-btn.edit-only { margin-left: auto; }
+
+    /* COMMENTS */
+    .comments-section {
+      background: var(--bg);
+      border-top: 1px solid var(--border-light);
+      padding: 14px 20px;
+      display: none;
+    }
+
+    .comments-section.open { display: block; }
+
+    .comment {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .comment-avatar {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      color: #fff;
+      font-weight: 500;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .comment-content { flex: 1; }
+    .comment-author { font-size: 12px; font-weight: 500; margin-bottom: 2px; }
+    .comment-text { font-size: 13px; color: #444440; line-height: 1.5; }
+
+    .comment-input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .comment-input {
+      flex: 1;
+      padding: 8px 12px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .comment-input:focus { border-color: var(--accent); }
+
+    .comment-submit {
+      padding: 8px 14px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state .emoji { font-size: 40px; margin-bottom: 14px; }
+    .empty-state h3 { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 400; color: var(--text); margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; }
+
+    /* ====== OVERLAYS ====== */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(3px);
+    }
+
+    .overlay.show { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 36px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: var(--shadow-lg);
+      animation: modalIn 0.25s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-title {
+      font-family: 'Fraunces', serif;
+      font-size: 22px;
+      font-weight: 400;
+      margin-bottom: 6px;
+      letter-spacing: -0.3px;
+    }
+
+    .modal-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+    .form-group { margin-bottom: 18px; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 7px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 11px 14px;
+      background: #faf9f7;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+    input::placeholder, textarea::placeholder { color: #c0bdb8; }
+    textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+    .role-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .role-option {
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .role-option:hover { border-color: #aaa; }
+    .role-option.selected { border-color: var(--accent); background: #faf9f7; }
+
+    .role-option .role-icon { font-size: 24px; margin-bottom: 8px; }
+    .role-option .role-name { font-size: 13px; font-weight: 500; }
+    .role-option .role-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+    .modal-actions .btn { flex: 1; padding: 12px; }
+
+    .note-editor textarea {
+      min-height: 160px;
+    }
+
+    /* Members list */
+    .members-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .member-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .chip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-warm); }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Sidebar toggle mobile */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.25s; }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .content { padding: 20px 16px; }
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-notes {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+      color: var(--muted);
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">📝</div>
+      <span class="logo-text">NoteMate</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Navigation</div>
+      <div class="sidebar-item active" id="nav-home" onclick="showHome()">
+        <span class="icon">🏠</span> Home
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="flex:1">
+      <div class="sidebar-label">My Classrooms</div>
+      <div id="sidebar-classrooms"></div>
+      <div class="sidebar-item" onclick="showJoinClassroom()" style="margin-top:4px;">
+        <span class="icon">➕</span> Join / Create
+      </div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="user-pill" onclick="openProfileModal()">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-name">Loading...</div>
+          <div class="user-role" id="sidebar-role">—</div>
+        </div>
+        <span style="color:#555450;font-size:12px;">✎</span>
+      </div>
+      <div class="sidebar-item" onclick="handleLogout()" style="margin-top:4px;">
+        <span class="icon">→</span> Sign Out
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Home</div>
+      <div class="topbar-actions" id="topbar-actions">
+        <button class="btn btn-warm" onclick="showJoinClassroom()">+ Classroom</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- HOME VIEW -->
+      <div class="home-view" id="home-view">
+        <div class="welcome-banner">
+          <div>
+            <h2>Good day, <span id="welcome-name">friend</span> 👋</h2>
+            <p>Jump into a classroom or create one to get started.</p>
+          </div>
+        </div>
+        <div class="section-title">Your Classrooms</div>
+        <div class="classrooms-grid" id="classrooms-grid">
+          <div class="classroom-card add-classroom-card" onclick="showJoinClassroom()">
+            <span style="font-size:22px">+</span>
+            <span>Join or Create Classroom</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLASSROOM VIEW -->
+      <div class="classroom-view" id="classroom-view">
+        <div class="classroom-header">
+          <div>
+            <h1 id="classroom-title">Classroom</h1>
+            <p id="classroom-meta">—</p>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary" onclick="showMembers()" id="members-btn">👥 Members</button>
+            <button class="btn btn-warm" onclick="openNewNoteModal()" id="post-note-btn">+ Post Note</button>
+          </div>
+        </div>
+        <div id="notes-container" class="notes-list">
+          <div class="loading-notes"><div class="spinner" style="border-color:rgba(0,0,0,0.1);border-top-color:#555;"></div> Loading notes...</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ============================================================ -->
+  <!-- PROFILE SETUP OVERLAY (shown on first login) -->
+  <!-- ============================================================ -->
+  <div class="overlay show" id="profile-overlay">
+    <div class="modal">
+      <div class="modal-title">Set up your profile</div>
+      <div class="modal-subtitle">Tell us a bit about yourself to get started on NoteMate.</div>
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="profile-name" placeholder="e.g. Sarah Johnson" />
+      </div>
+
+      <div class="form-group">
+        <label>Your Role</label>
+        <div class="role-selector">
+          <div class="role-option selected" id="role-student" onclick="selectRole('student')">
+            <div class="role-icon">🎒</div>
+            <div class="role-name">Student</div>
+            <div class="role-desc">Join classrooms & share notes</div>
+          </div>
+          <div class="role-option" id="role-teacher" onclick="selectRole('teacher')">
+            <div class="role-icon">👩‍🏫</div>
+            <div class="role-name">Teacher</div>
+            <div class="role-desc">Create & manage classrooms</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" id="teacher-passcode-group" style="display:none">
+        <label>Teacher Passcode</label>
+        <input type="password" id="teacher-passcode" placeholder="Enter teacher passcode" />
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="saveProfile()" id="save-profile-btn">Save & Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- JOIN / CREATE CLASSROOM OVERLAY -->
+  <!-- ============================================================ -->
+  <div class="overlay" id="classroom-overlay">
+    <div class="modal">
+      <div class="modal-title">Classrooms</div>
+      <div class="modal-subtitle">Join an existing classroom with a code, or create a new one.</div>
+
+      <!-- Teacher: Create -->
+      <div id="create-classroom-section" style="display:none">
+        <div class="form-group">
+          <label>Classroom Name</label>
+          <input type="text" id="new-classroom-name" placeholder="e.g. Biology 101" />
+        </div>
+        <div class="form-group">
+          <label>Subject / Description</label>
+          <input type="text" id="new-classroom-subject" placeholder="e.g. Advanced Biology for Grade 11" />
+        </div>
+        <button class="btn btn-warm" style="width:100%" onclick="createClassroom()">Create Classroom</button>
+        <div style="margin:20px 0;border-top:1px solid var(--border)"></div>
+      </div>
+
+      <!-- Everyone: Join with code -->
+      <div class="form-group">
+        <label>Join with Code</label>
+        <input type="text" id="join-code-input" placeholder="e.g. ABC123" style="text-transform:uppercase" />
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="joinClassroom()">Join Classroom</button>
+
+      <div class="modal-actions" style="margin-top:20px">
+        <button class="btn btn-secondary" onclick="closeOverlay('classroom-overlay')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- NEW NOTE OVERLAY -->
+  <!-- ============================================================ -->
+  <div class="overlay" id="note-overlay">
+    <div class="modal" style="max-width:560px">
+      <div class="modal-title">Post a Note</div>
+      <div class="modal-subtitle">Share knowledge with your classroom.</div>
+
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="note-title-input" placeholder="Give your note a title..." />
+      </div>
+      <div class="form-group note-editor">
+        <label>Content</label>
+        <textarea id="note-body-input" placeholder="Write your note here. Share ideas, summaries, questions..."></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeOverlay('note-overlay')">Cancel</button>
+        <button class="btn btn-warm" onclick="postNote()" id="post-note-submit-btn">Post Note</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- EDIT NOTE OVERLAY -->
+  <!-- ============================================================ -->
+  <div class="overlay" id="edit-note-overlay">
+    <div class="modal" style="max-width:560px">
+      <div class="modal-title">Edit Note</div>
+      <input type="hidden" id="edit-note-id" />
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="edit-note-title" placeholder="Title" />
+      </div>
+      <div class="form-group note-editor">
+        <label>Content</label>
+        <textarea id="edit-note-body" placeholder="Content..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeOverlay('edit-note-overlay')">Cancel</button>
+        <button class="btn btn-warm" onclick="updateNote()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MEMBERS OVERLAY -->
+  <!-- ============================================================ -->
+  <div class="overlay" id="members-overlay">
+    <div class="modal">
+      <div class="modal-title">Classroom Members</div>
+      <div class="modal-subtitle" id="classroom-code-display"></div>
+      <div id="members-list" style="margin-top:12px"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeOverlay('members-overlay')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- EDIT PROFILE OVERLAY -->
+  <!-- ============================================================ -->
+  <div class="overlay" id="edit-profile-overlay">
+    <div class="modal">
+      <div class="modal-title">Edit Profile</div>
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="edit-profile-name" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeOverlay('edit-profile-overlay')">Cancel</button>
+        <button class="btn btn-primary" onclick="updateProfile()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc,
+      collection, addDoc, query, where, onSnapshot,
+      orderBy, serverTimestamp, arrayUnion, getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtwb2-JL4onzFu1Kf9h6TXdddi66JDF28",
+      authDomain: "notemate-b625e.firebaseapp.com",
+      projectId: "notemate-b625e",
+      storageBucket: "notemate-b625e.firebasestorage.app",
+      messagingSenderId: "779589726898",
+      appId: "1:779589726898:web:3b7f79c2d0e1c1453bcfab",
+      measurementId: "G-VMPR35TK9H"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // ---- Expose to window ----
+    window._db = db;
+    window._auth = auth;
+    window._signOut = signOut;
+    window._doc = doc;
+    window._getDoc = getDoc;
+    window._setDoc = setDoc;
+    window._updateDoc = updateDoc;
+    window._collection = collection;
+    window._addDoc = addDoc;
+    window._query = query;
+    window._where = where;
+    window._onSnapshot = onSnapshot;
+    window._orderBy = orderBy;
+    window._serverTimestamp = serverTimestamp;
+    window._arrayUnion = arrayUnion;
+    window._getDocs = getDocs;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      window._currentUser = user;
+
+      // Load user profile
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists() || !userSnap.data().name) {
+        // Show profile setup
+        document.getElementById('profile-overlay').classList.add('show');
+      } else {
+        const data = userSnap.data();
+        window._userProfile = data;
+        document.getElementById('profile-overlay').classList.remove('show');
+        initApp(data);
+      }
+    });
+
+    window._saveUserProfile = async (name, role) => {
+      const userRef = doc(db, 'users', window._currentUser.uid);
+      const profileData = {
+        name,
+        role,
+        email: window._currentUser.email,
+        uid: window._currentUser.uid,
+        createdAt: serverTimestamp()
+      };
+      await setDoc(userRef, profileData, { merge: true });
+      window._userProfile = profileData;
+      document.getElementById('profile-overlay').classList.remove('show');
+      initApp(profileData);
+    };
+
+    function initApp(profile) {
+      // Update sidebar
+      document.getElementById('sidebar-name').textContent = profile.name || 'You';
+      document.getElementById('sidebar-role').textContent = profile.role === 'teacher' ? '👩‍🏫 Teacher' : '🎒 Student';
+      document.getElementById('sidebar-avatar').textContent = (profile.name || 'U')[0].toUpperCase();
+      document.getElementById('welcome-name').textContent = profile.name?.split(' ')[0] || 'there';
+
+      // Show "Create" for teachers
+      if (profile.role === 'teacher') {
+        document.getElementById('create-classroom-section').style.display = 'block';
+      }
+
+      loadMyClassrooms();
+    }
+
+    window._initApp = initApp;
+
+    async function loadMyClassrooms() {
+      const uid = window._currentUser.uid;
+      const q = query(collection(db, 'classrooms'), where('members', 'array-contains', uid));
+      onSnapshot(q, (snap) => {
+        window._myClassrooms = [];
+        snap.forEach(d => window._myClassrooms.push({ id: d.id, ...d.data() }));
+        renderSidebarClassrooms();
+        renderHomeClassrooms();
+      });
+    }
+
+    window._loadMyClassrooms = loadMyClassrooms;
+  </script>
+
+  <script>
+    const COLORS = ['#c9622f','#3b82f6','#16a34a','#8b5cf6','#ec4899','#0891b2','#d97706'];
+    const EMOJIS = ['📚','🔬','🧮','🌍','✏️','🎨','💡','⚡','🧬','📐'];
+
+    let currentClassroomId = null;
+    let notesUnsubscribe = null;
+    let selectedRole = 'student';
+
+    // --- Role Selection ---
+    function selectRole(role) {
+      selectedRole = role;
+      document.getElementById('role-student').classList.toggle('selected', role === 'student');
+      document.getElementById('role-teacher').classList.toggle('selected', role === 'teacher');
+      document.getElementById('teacher-passcode-group').style.display = role === 'teacher' ? 'block' : 'none';
+    }
+
+    // --- Save Profile ---
+    async function saveProfile() {
+      const name = document.getElementById('profile-name').value.trim();
+      if (!name) return showToast('Please enter your name.');
+
+      if (selectedRole === 'teacher') {
+        const passcode = document.getElementById('teacher-passcode').value;
+        if (passcode !== 'Academy@teach') return showToast('Incorrect teacher passcode.');
+      }
+
+      const btn = document.getElementById('save-profile-btn');
+      btn.disabled = true; btn.textContent = 'Saving...';
+      try {
+        await window._saveUserProfile(name, selectedRole);
+        showToast('Profile saved! Welcome to NoteMate 🎉');
+      } catch (e) {
+        showToast('Error saving profile.');
+        btn.disabled = false; btn.textContent = 'Save & Continue';
+      }
+    }
+
+    // --- Sidebar Classrooms ---
+    function renderSidebarClassrooms() {
+      const el = document.getElementById('sidebar-classrooms');
+      el.innerHTML = '';
+      (window._myClassrooms || []).forEach((c, i) => {
+        const div = document.createElement('div');
+        div.className = 'classroom-item' + (currentClassroomId === c.id ? ' active' : '');
+        div.innerHTML = `<span class="classroom-dot" style="background:${COLORS[i % COLORS.length]}"></span>${c.name}`;
+        div.onclick = () => openClassroom(c);
+        el.appendChild(div);
+      });
+    }
+
+    // --- Home Classrooms Grid ---
+    function renderHomeClassrooms() {
+      const grid = document.getElementById('classrooms-grid');
+      grid.innerHTML = '';
+      (window._myClassrooms || []).forEach((c, i) => {
+        const card = document.createElement('div');
+        card.className = 'classroom-card';
+        card.innerHTML = `
+          <div class="classroom-card-color" style="background:${COLORS[i%COLORS.length]}22">${EMOJIS[i%EMOJIS.length]}</div>
+          <h3>${c.name}</h3>
+          <p>${c.subject || ''}</p>
+        `;
+        card.onclick = () => openClassroom(c);
+        grid.appendChild(card);
+      });
+      // Add card
+      const addCard = document.createElement('div');
+      addCard.className = 'classroom-card add-classroom-card';
+      addCard.innerHTML = `<span style="font-size:22px">+</span><span>Join or Create Classroom</span>`;
+      addCard.onclick = () => showJoinClassroom();
+      grid.appendChild(addCard);
+    }
+
+    // --- Navigation ---
+    function showHome() {
+      currentClassroomId = null;
+      if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
+      document.getElementById('home-view').style.display = 'block';
+      document.getElementById('classroom-view').style.display = 'none';
+      document.getElementById('topbar-title').textContent = 'Home';
+      document.getElementById('topbar-actions').innerHTML = `<button class="btn btn-warm" onclick="showJoinClassroom()">+ Classroom</button>`;
+      document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+      document.getElementById('nav-home').classList.add('active');
+      document.querySelectorAll('.classroom-item').forEach(el => el.classList.remove('active'));
+    }
+
+    function openClassroom(classroom) {
+      currentClassroomId = classroom.id;
+      document.getElementById('home-view').style.display = 'none';
+      document.getElementById('classroom-view').style.display = 'block';
+      document.getElementById('classroom-title').textContent = classroom.name;
+      document.getElementById('classroom-meta').textContent = `${classroom.subject || ''} · Code: ${classroom.code}`;
+      document.getElementById('topbar-title').textContent = classroom.name;
+      document.getElementById('topbar-actions').innerHTML = `
+        <button class="btn btn-secondary" onclick="showMembers()">👥 Members</button>
+        <button class="btn btn-warm" onclick="openNewNoteModal()">+ Post Note</button>
+      `;
+      document.getElementById('nav-home').classList.remove('active');
+      document.querySelectorAll('.classroom-item').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.classroom-item').forEach(el => {
+        if (el.textContent.trim() === classroom.name) el.classList.add('active');
+      });
+
+      loadNotes(classroom.id);
+    }
+
+    // --- Notes ---
+    function loadNotes(classroomId) {
+      if (notesUnsubscribe) notesUnsubscribe();
+      document.getElementById('notes-container').innerHTML = `<div class="loading-notes"><div class="spinner" style="border-color:rgba(0,0,0,0.1);border-top-color:#555;"></div> Loading notes...</div>`;
+
+      const db = window._db;
+      const q = window._query(
+        window._collection(db, 'classrooms', classroomId, 'notes'),
+        window._orderBy('createdAt', 'desc')
+      );
+
+      notesUnsubscribe = window._onSnapshot(q, (snap) => {
+        const notes = [];
+        snap.forEach(d => notes.push({ id: d.id, ...d.data() }));
+        renderNotes(notes, classroomId);
+      });
+    }
+
+    function renderNotes(notes, classroomId) {
+      const container = document.getElementById('notes-container');
+      if (notes.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="emoji">📭</div>
+            <h3>No notes yet</h3>
+            <p>Be the first to post a note in this classroom!</p>
+          </div>`;
+        return;
+      }
+      container.innerHTML = '';
+      notes.forEach(note => {
+        container.appendChild(createNoteCard(note, classroomId));
+      });
+    }
+
+    function createNoteCard(note, classroomId) {
+      const isOwner = note.authorId === window._currentUser?.uid;
+      const initials = (note.authorName || '?')[0].toUpperCase();
+      const color = COLORS[Math.abs(hashStr(note.authorId || '')) % COLORS.length];
+      const ts = note.createdAt?.toDate ? note.createdAt.toDate().toLocaleString() : 'Just now';
+
+      const card = document.createElement('div');
+      card.className = 'note-card';
+      card.id = `note-${note.id}`;
+
+      card.innerHTML = `
+        <div class="note-header">
+          <div class="note-author-avatar" style="background:${color}">${initials}</div>
+          <div class="note-meta">
+            <div class="note-author-name">${note.authorName || 'Unknown'}</div>
+            <div class="note-timestamp">${ts}</div>
+          </div>
+          <span class="note-badge ${note.authorRole === 'teacher' ? 'badge-teacher' : 'badge-student'}">
+            ${note.authorRole === 'teacher' ? 'Teacher' : 'Student'}
+          </span>
+        </div>
+        <div class="note-title">${escHtml(note.title || '')}</div>
+        <div class="note-body">${escHtml(note.body || '')}</div>
+        <div class="note-actions">
+          <button class="note-action-btn" onclick="toggleComments('${note.id}', '${classroomId}', this)">
+            💬 <span class="comment-count">${note.commentCount || 0}</span> Comments
+          </button>
+          ${isOwner ? `
+            <button class="note-action-btn edit-only" onclick="openEditNote('${note.id}', '${escHtml(note.title||'')}', '${escHtml(note.body||'')}', '${classroomId}')">✎ Edit</button>
+          ` : ''}
+        </div>
+        <div class="comments-section" id="comments-${note.id}">
+          <div id="comments-list-${note.id}"></div>
+          <div class="comment-input-row">
+            <input class="comment-input" id="comment-input-${note.id}" placeholder="Add a comment..." />
+            <button class="comment-submit" onclick="postComment('${note.id}', '${classroomId}')">Send</button>
+          </div>
+        </div>
+      `;
+      return card;
+    }
+
+    // --- Comments ---
+    async function toggleComments(noteId, classroomId, btn) {
+      const section = document.getElementById(`comments-${noteId}`);
+      const isOpen = section.classList.contains('open');
+      section.classList.toggle('open', !isOpen);
+      if (!isOpen) {
+        loadComments(noteId, classroomId);
+      }
+    }
+
+    function loadComments(noteId, classroomId) {
+      const db = window._db;
+      const q = window._query(
+        window._collection(db, 'classrooms', classroomId, 'notes', noteId, 'comments'),
+        window._orderBy('createdAt', 'asc')
+      );
+      window._onSnapshot(q, (snap) => {
+        const list = document.getElementById(`comments-list-${noteId}`);
+        if (!list) return;
+        list.innerHTML = '';
+        snap.forEach(d => {
+          const c = d.data();
+          const color = COLORS[Math.abs(hashStr(c.authorId||'')) % COLORS.length];
+          const div = document.createElement('div');
+          div.className = 'comment';
+          div.innerHTML = `
+            <div class="comment-avatar" style="background:${color}">${(c.authorName||'?')[0].toUpperCase()}</div>
+            <div class="comment-content">
+              <div class="comment-author">${c.authorName || 'Unknown'}</div>
+              <div class="comment-text">${escHtml(c.text || '')}</div>
+            </div>`;
+          list.appendChild(div);
+        });
+
+        // Update comment count badge
+        const countEl = document.querySelector(`#note-${noteId} .comment-count`);
+        if (countEl) countEl.textContent = snap.size;
+      });
+    }
+
+    async function postComment(noteId, classroomId) {
+      const input = document.getElementById(`comment-input-${noteId}`);
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      const profile = window._userProfile;
+      await window._addDoc(
+        window._collection(window._db, 'classrooms', classroomId, 'notes', noteId, 'comments'),
+        {
+          text,
+          authorId: window._currentUser.uid,
+          authorName: profile?.name || 'Unknown',
+          createdAt: window._serverTimestamp()
+        }
+      );
+    }
+
+    // --- Post Note ---
+    function openNewNoteModal() {
+      document.getElementById('note-title-input').value = '';
+      document.getElementById('note-body-input').value = '';
+      document.getElementById('note-overlay').classList.add('show');
+    }
+
+    async function postNote() {
+      const title = document.getElementById('note-title-input').value.trim();
+      const body = document.getElementById('note-body-input').value.trim();
+      if (!title) return showToast('Please add a title.');
+      if (!body) return showToast('Please write something in your note.');
+
+      const btn = document.getElementById('post-note-submit-btn');
+      btn.disabled = true; btn.textContent = 'Posting...';
+
+      try {
+        const profile = window._userProfile;
+        await window._addDoc(
+          window._collection(window._db, 'classrooms', currentClassroomId, 'notes'),
+          {
+            title, body,
+            authorId: window._currentUser.uid,
+            authorName: profile?.name || 'Unknown',
+            authorRole: profile?.role || 'student',
+            createdAt: window._serverTimestamp(),
+            commentCount: 0
+          }
+        );
+        closeOverlay('note-overlay');
+        showToast('Note posted! ✅');
+      } catch (e) {
+        showToast('Error posting note.');
+      }
+      btn.disabled = false; btn.textContent = 'Post Note';
+    }
+
+    // --- Edit Note ---
+    function openEditNote(noteId, title, body, classroomId) {
+      document.getElementById('edit-note-id').value = noteId;
+      document.getElementById('edit-note-title').value = title;
+      document.getElementById('edit-note-body').value = body;
+      document.getElementById('edit-note-overlay').dataset.classroom = classroomId;
+      document.getElementById('edit-note-overlay').classList.add('show');
+    }
+
+    async function updateNote() {
+      const noteId = document.getElementById('edit-note-id').value;
+      const classroomId = document.getElementById('edit-note-overlay').dataset.classroom;
+      const title = document.getElementById('edit-note-title').value.trim();
+      const body = document.getElementById('edit-note-body').value.trim();
+      if (!title || !body) return showToast('Fields cannot be empty.');
+      try {
+        const noteRef = window._doc(window._db, 'classrooms', classroomId, 'notes', noteId);
+        await window._updateDoc(noteRef, { title, body });
+        closeOverlay('edit-note-overlay');
+        showToast('Note updated ✅');
+      } catch(e) { showToast('Error updating note.'); }
+    }
+
+    // --- Classrooms ---
+    function showJoinClassroom() {
+      document.getElementById('join-code-input').value = '';
+      document.getElementById('new-classroom-name').value = '';
+      document.getElementById('new-classroom-subject').value = '';
+      document.getElementById('classroom-overlay').classList.add('show');
+    }
+
+    async function createClassroom() {
+      const name = document.getElementById('new-classroom-name').value.trim();
+      const subject = document.getElementById('new-classroom-subject').value.trim();
+      if (!name) return showToast('Please enter a classroom name.');
+      const code = generateCode();
+      try {
+        const docRef = await window._addDoc(window._collection(window._db, 'classrooms'), {
+          name, subject, code,
+          createdBy: window._currentUser.uid,
+          members: [window._currentUser.uid],
+          createdAt: window._serverTimestamp()
+        });
+        closeOverlay('classroom-overlay');
+        showToast(`Classroom created! Code: ${code} 🎉`);
+      } catch(e) { showToast('Error creating classroom.'); }
+    }
+
+    async function joinClassroom() {
+      const code = document.getElementById('join-code-input').value.trim().toUpperCase();
+      if (!code) return showToast('Please enter a classroom code.');
+      try {
+        const q = window._query(window._collection(window._db, 'classrooms'), window._where('code', '==', code));
+        const snap = await window._getDocs(q);
+        if (snap.empty) return showToast('No classroom found with that code.');
+        const classDoc = snap.docs[0];
+        const data = classDoc.data();
+        if (data.members.includes(window._currentUser.uid)) {
+          closeOverlay('classroom-overlay');
+          return showToast('You\'re already in this classroom!');
+        }
+        await window._updateDoc(window._doc(window._db, 'classrooms', classDoc.id), {
+          members: window._arrayUnion(window._currentUser.uid)
+        });
+        closeOverlay('classroom-overlay');
+        showToast(`Joined "${data.name}"! 🎉`);
+      } catch(e) { showToast('Error joining classroom.'); }
+    }
+
+    // --- Members ---
+    async function showMembers() {
+      if (!currentClassroomId) return;
+      const classroom = (window._myClassrooms||[]).find(c => c.id === currentClassroomId);
+      if (!classroom) return;
+      document.getElementById('classroom-code-display').textContent = `Share code: ${classroom.code} to invite others`;
+
+      const list = document.getElementById('members-list');
+      list.innerHTML = '<div style="color:var(--muted);font-size:13px">Loading members...</div>';
+      document.getElementById('members-overlay').classList.add('show');
+
+      try {
+        const memberIds = classroom.members || [];
+        const chips = await Promise.all(memberIds.map(async uid => {
+          try {
+            const snap = await window._getDoc(window._doc(window._db, 'users', uid));
+            const data = snap.data() || {};
+            return `<div class="member-chip"><span class="chip-dot"></span>${data.name || 'Unknown'} <span style="color:var(--muted)">(${data.role||'student'})</span></div>`;
+          } catch { return ''; }
+        }));
+        list.innerHTML = `<div class="members-chips">${chips.join('')}</div>`;
+      } catch(e) { list.innerHTML = '<div style="color:var(--muted)">Could not load members.</div>'; }
+    }
+
+    // --- Profile Edit ---
+    function openProfileModal() {
+      document.getElementById('edit-profile-name').value = window._userProfile?.name || '';
+      document.getElementById('edit-profile-overlay').classList.add('show');
+    }
+
+    async function updateProfile() {
+      const name = document.getElementById('edit-profile-name').value.trim();
+      if (!name) return showToast('Name cannot be empty.');
+      try {
+        await window._updateDoc(window._doc(window._db, 'users', window._currentUser.uid), { name });
+        window._userProfile.name = name;
+        document.getElementById('sidebar-name').textContent = name;
+        document.getElementById('sidebar-avatar').textContent = name[0].toUpperCase();
+        document.getElementById('welcome-name').textContent = name.split(' ')[0];
+        closeOverlay('edit-profile-overlay');
+        showToast('Profile updated ✅');
+      } catch(e) { showToast('Error updating profile.'); }
+    }
+
+    // --- Logout ---
+    async function handleLogout() {
+      await window._signOut(window._auth);
+      window.location.href = 'index.html';
+    }
+
+    // --- Utilities ---
+    function closeOverlay(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function generateCode() {
+      return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+
+    function hashStr(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      return hash;
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Expose to global
+    window.switchTab = window.switchTab;
+    window.selectRole = selectRole;
+    window.saveProfile = saveProfile;
+    window.showHome = showHome;
+    window.showJoinClassroom = showJoinClassroom;
+    window.openNewNoteModal = openNewNoteModal;
+    window.postNote = postNote;
+    window.openEditNote = openEditNote;
+    window.updateNote = updateNote;
+    window.createClassroom = createClassroom;
+    window.joinClassroom = joinClassroom;
+    window.showMembers = showMembers;
+    window.openProfileModal = openProfileModal;
+    window.updateProfile = updateProfile;
+    window.handleLogout = handleLogout;
+    window.closeOverlay = closeOverlay;
+    window.toggleComments = toggleComments;
+    window.postComment = postComment;
+    window.renderSidebarClassrooms = renderSidebarClassrooms;
+    window.renderHomeClassrooms = renderHomeClassrooms;
+  </script>
+</body>
+</html>
